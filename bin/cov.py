@@ -34,6 +34,7 @@ triu_tril = 'triu'
 row_col_major = 'row-major'
 probe_ordering = [['L', 'L'], [GL_or_LG[0], GL_or_LG[1]], ['G', 'G']]
 block_index = 'ell'
+n_probes = 2
 # ! end settings
 
 ind = mm.build_full_ind(triu_tril, row_col_major, zbins)
@@ -46,16 +47,16 @@ cl_GL_3d = cl_LG_3d.transpose(0, 2, 1)
 ell_values = np.load(f'{project_path}/data/input_riccardo/ell.npy')
 delta_ell = np.load(f'{project_path}/data/input_riccardo/delta_ell.npy')
 
-cl_3x2pt_5d = np.zeros((2, 2, nbl, zbins, zbins))
+cl_3x2pt_5d = np.zeros((n_probes, n_probes, nbl, zbins, zbins))
 cl_3x2pt_5d[0, 0, :, :, :] = cl_LL_3d
 cl_3x2pt_5d[0, 1, :, :, :] = cl_LG_3d
 cl_3x2pt_5d[1, 0, :, :, :] = cl_GL_3d
 cl_3x2pt_5d[1, 1, :, :, :] = cl_GG_3d
 
-noise_3x2pt_4d = mm.build_noise(zbins, 2, sigma_eps2=sigma_eps ** 2, ng=n_gal, EP_or_ED=EP_or_ED)
+noise_3x2pt_4d = mm.build_noise(zbins, n_probes, sigma_eps2=sigma_eps ** 2, ng=n_gal, EP_or_ED=EP_or_ED)
 
 # create a fake axis for ell, to have the same shape as cl_3x2pt_5d
-noise_3x2pt_5d = np.zeros((2, 2, nbl, zbins, zbins))
+noise_3x2pt_5d = np.zeros((n_probes, n_probes, nbl, zbins, zbins))
 for probe_A in (0, 1):
     for probe_B in (0, 1):
         for ell_idx in range(nbl):
@@ -80,5 +81,3 @@ mm.matshow(cov_3x2pt_GO_2D, log=True, abs_val=True)
 np.savez_compressed('../output/cov_3x2pt_GO_10D_arr.npz', cov_3x2pt_GO_10D_arr)
 np.savez_compressed('../output/cov_3x2pt_GO_4D.npz', cov_3x2pt_GO_4D)
 np.savez_compressed('../output/cov_3x2pt_GO_2D.npz', cov_3x2pt_GO_2D)
-
-cov_loaded = np.load('../output/cov_3x2pt_GO_10D_arr.npz')['arr_0']
