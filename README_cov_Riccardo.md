@@ -6,7 +6,8 @@ Nella repo trovi il codice e le covarianze per la 3x2pt. Qui sotto un po' di chi
 * `triu_tril`, `row_col_major`: per gli auto-spectra (LL e GG), che sono simmetrici in $i, j$, scegli se prendere prendendo solo la parte triangolare superiore o inferior ("upper/lower triangle, `triu`/`tril`") riga per riga o colonna per colonna (ovvero con un [ordinamento](https://en.wikipedia.org/wiki/Row-_and_column-major_order) `row-major` o `col-major`).
 * `block_index`: nella matrice di covarianza 2D (che, alla fine, è l'unico file che ti interessa; gli altri li ho inclusi per completezza), i blocchi sulla diagonale corrispondono a una coppia $(\ell_1, \ell_2)$. Il fatto che la matrice sia block-diagonal deriva dal fatto che, per la parte Gaussiana, non c'è covarianza per $\ell_1 \neq \ell_2$. L'alternativa al valore `ell` è `zpair`, che significa che i blocchi sono indicizzati dalle coppie di redshift: $(zpair_i, zpair_j)$; il discorso è lo stesso ma è un po' meno intuitivo. Comunque, per farti un'idea di com'è fatta la matrice 2D, puoi usare `plt.matshow(cov_2D)`, magari dandogli il log della covarianza 
 
-La covarianza 3x2pt in 4D ha shape (nbl, nbl, zpairs_3x2pt, zpairs_3x2pt), con zpairs_3x2pt = zpairs_auto + zpairs_cross + zpairs_auto per (LL, GL, GG) (= 55 + 100 + 55 = 210). \\
+La covarianza 3x2pt in 4D ha shape (nbl, nbl, zpairs_3x2pt, zpairs_3x2pt), con zpairs_3x2pt = zpairs_auto + zpairs_cross + zpairs_auto per (LL, GL, GG) (= 55 + 100 + 55 = 210). 
+
 La covarianza 3x2pt in 10D ha shape (n_probes, n_probes, n_probes, n_probes, nbl, nbl, zbins, zbins, zbins, zbins), con n_probes = 2.
 
 Nota che salvo i file in formato `npz`. Per caricarli, usa
