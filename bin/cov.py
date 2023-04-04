@@ -35,17 +35,20 @@ row_col_major = 'row-major'
 probe_ordering = [['L', 'L'], [GL_or_LG[0], GL_or_LG[1]], ['G', 'G']]
 block_index = 'ell'
 n_probes = 2
+survey = 'SKA'
 # ! end settings
+
+assert survey in ['SKA', 'Euclid'], 'survey must be either SKA or Euclid'
 
 ind = mm.build_full_ind(triu_tril, row_col_major, zbins)
 
-cl_LL_3d = np.load(f'{project_path}/data/input_riccardo/CLL.npy').transpose(2, 0, 1)
-cl_GG_3d = np.load(f'{project_path}/data/input_riccardo/CGG.npy').transpose(2, 0, 1)
-cl_LG_3d = np.load(f'{project_path}/data/input_riccardo/CLG.npy').transpose(2, 0, 1)
+cl_LL_3d = np.load(f'{project_path}/data/{survey}/CLL.npy').transpose(2, 0, 1)
+cl_GG_3d = np.load(f'{project_path}/data/{survey}/CGG.npy').transpose(2, 0, 1)
+cl_LG_3d = np.load(f'{project_path}/data/{survey}/CLG.npy').transpose(2, 0, 1)
 cl_GL_3d = cl_LG_3d.transpose(0, 2, 1)
 
-ell_values = np.load(f'{project_path}/data/input_riccardo/ell.npy')
-delta_ell = np.load(f'{project_path}/data/input_riccardo/delta_ell.npy')
+ell_values = np.load(f'{project_path}/data/{survey}/ell.npy')
+delta_ell = np.load(f'{project_path}/data/{survey}/delta_ell.npy')
 
 cl_3x2pt_5d = np.zeros((n_probes, n_probes, nbl, zbins, zbins))
 cl_3x2pt_5d[0, 0, :, :, :] = cl_LL_3d
@@ -78,6 +81,8 @@ cov_3x2pt_GO_2D = mm.cov_4D_to_2D(cov_3x2pt_GO_4D, block_index=block_index)
 
 mm.matshow(cov_3x2pt_GO_2D, log=True, abs_val=True)
 
-np.savez_compressed('../output/cov_3x2pt_GO_10D_arr.npz', cov_3x2pt_GO_10D_arr)
-np.savez_compressed('../output/cov_3x2pt_GO_4D.npz', cov_3x2pt_GO_4D)
-np.savez_compressed('../output/cov_3x2pt_GO_2D.npz', cov_3x2pt_GO_2D)
+np.savez_compressed(f'../output/{survey}/cov_3x2pt_GO_10D_arr.npz', cov_3x2pt_GO_10D_arr)
+np.savez_compressed(f'../output/{survey}/cov_3x2pt_GO_4D.npz', cov_3x2pt_GO_4D)
+np.savez_compressed(f'../output/{survey}/cov_3x2pt_GO_2D.npz', cov_3x2pt_GO_2D)
+
+print('done')
