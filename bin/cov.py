@@ -23,10 +23,8 @@ start_time = time.perf_counter()
 survey_area_ISTF = 15_000  # deg^2
 deg2_in_sphere = 41252.96  # deg^2 in a spere
 
-fsky = survey_area_ISTF / deg2_in_sphere
 zbins = 10
 nbl = 32
-n_gal = 30
 sigma_eps = 0.3
 EP_or_ED = 'EP'
 GL_or_LG = 'GL'
@@ -35,10 +33,18 @@ row_col_major = 'row-major'
 probe_ordering = [['L', 'L'], [GL_or_LG[0], GL_or_LG[1]], ['G', 'G']]
 block_index = 'ell'
 n_probes = 2
-survey = 'SKA'
+survey = 'Euclid'
 # ! end settings
 
-assert survey in ['SKA', 'Euclid'], 'survey must be either SKA or Euclid'
+
+if survey == 'SKA' or survey == 'SKA_withbeta':
+    fsky = 0.7
+    n_gal = 8.7
+elif survey == 'Euclid':
+    fsky = survey_area_ISTF / deg2_in_sphere
+    n_gal = 30
+else:
+    raise ValueError('survey must be either "SKA" or "SKA_withbeta" or "Euclid"')
 
 ind = mm.build_full_ind(triu_tril, row_col_major, zbins)
 
