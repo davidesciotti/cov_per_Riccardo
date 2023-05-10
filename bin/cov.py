@@ -33,25 +33,38 @@ row_col_major = 'row-major'
 probe_ordering = [['L', 'L'], [GL_or_LG[0], GL_or_LG[1]], ['G', 'G']]
 block_index = 'ell'
 n_probes = 2
-survey = 'Euclid'
+survey = 'Euclid_v2'
 # ! end settings
 
 
 if survey == 'SKA' or survey == 'SKA_withbeta':
     fsky = 0.7
     n_gal = 8.7
-elif survey == 'Euclid':
+elif survey == 'Euclid' or survey == 'Euclid_v2':
     fsky = survey_area_ISTF / deg2_in_sphere
     n_gal = 30
 else:
-    raise ValueError('survey must be either "SKA" or "SKA_withbeta" or "Euclid"')
+    raise ValueError('survey must be either "SKA" or "SKA_withbeta" or "Euclid" or "Euclid_v2"')
+
+
+zpairs_auto, zpairs_cross, zpairs_3x2pt = mm.get_zpairs(zbins)
 
 ind = mm.build_full_ind(triu_tril, row_col_major, zbins)
+ind_auto = ind[:zpairs_auto, :]
 
-cl_LL_3d = np.load(f'{project_path}/data/{survey}/CLL.npy').transpose(2, 0, 1)
-cl_GG_3d = np.load(f'{project_path}/data/{survey}/CGG.npy').transpose(2, 0, 1)
-cl_LG_3d = np.load(f'{project_path}/data/{survey}/CLG.npy').transpose(2, 0, 1)
+cl_LL_3d = np.load(f'{project_path}/data/{survey}/CLL.npy')
+cl_LG_3d = np.load(f'{project_path}/data/{survey}/CLG.npy')
+cl_GG_3d = np.load(f'{project_path}/data/{survey}/CGG.npy')
+
+if survey != 'Euclid_v2':
+    cl_LL_3d = cl_LL_3d.transpose(2, 0, 1)
+    cl_GL_3d = cl_LG_3d.transpose(2, 0, 1)
+    cl_GG_3d = cl_GG_3d.transpose(2, 0, 1)
+
 cl_GL_3d = cl_LG_3d.transpose(0, 2, 1)
+
+assert cl_GL_3d.shape == cl_LG_3d.shape == cl_LL_3d.shape == cl_GG_3d.shape
+assert cl_LL_3d.shape == (nbl, zbins, zbins)
 
 ell_values = np.load(f'{project_path}/data/{survey}/ell.npy')
 delta_ell = np.load(f'{project_path}/data/{survey}/delta_ell.npy')
@@ -79,16 +92,26 @@ noise_GG_5d = noise_3x2pt_5d[1, 1, ...][np.newaxis, np.newaxis, ...]
 cov_GO_WL_6D = mm.covariance_einsum(cl_LL_5d, noise_LL_5d, fsky, ell_values, delta_ell)[0, 0, 0, 0, ...]
 cov_GO_GC_6D = mm.covariance_einsum(cl_GG_5d, noise_GG_5d, fsky, ell_values, delta_ell)[0, 0, 0, 0, ...]
 
-# actually, only the 3x2pt is needed
+# ! reshape
 cov_3x2pt_GO_10D_arr = mm.covariance_einsum(cl_3x2pt_5d, noise_3x2pt_5d, fsky, ell_values, delta_ell)
 cov_3x2pt_dict_10D = mm.cov_10D_array_to_dict(cov_3x2pt_GO_10D_arr)
+
 cov_3x2pt_GO_4D = mm.cov_3x2pt_dict_10D_to_4D(cov_3x2pt_dict_10D, probe_ordering, nbl, zbins, ind.copy(), GL_or_LG)
+cov_GO_WL_4D = mm.cov_6D_to_4D(cov_GO_WL_6D, nbl, zpairs_auto, ind_auto)
+cov_GO_GC_4D = mm.cov_6D_to_4D(cov_GO_GC_6D, nbl, zpairs_auto, ind_auto)
+
+cov_GO_WL_2D = mm.cov_4D_to_2D(cov_GO_WL_4D, block_index=block_index)
+cov_GO_GC_2D = mm.cov_4D_to_2D(cov_GO_GC_4D, block_index=block_index)
 cov_3x2pt_GO_2D = mm.cov_4D_to_2D(cov_3x2pt_GO_4D, block_index=block_index)
 
-mm.matshow(cov_3x2pt_GO_2D, log=True, abs_val=True)
+mm.matshow(cov_GO_WL_2D, log=True, abs_val=False, title='cov_WL')
+mm.matshow(cov_GO_GC_2D, log=True, abs_val=False, title='cov_GC')
+mm.matshow(cov_3x2pt_GO_2D, log=True, abs_val=False, title='cov_3x2pt')
 
 np.savez_compressed(f'../output/{survey}/cov_3x2pt_GO_10D_arr.npz', cov_3x2pt_GO_10D_arr)
 np.savez_compressed(f'../output/{survey}/cov_3x2pt_GO_4D.npz', cov_3x2pt_GO_4D)
 np.savez_compressed(f'../output/{survey}/cov_3x2pt_GO_2D.npz', cov_3x2pt_GO_2D)
+np.savez_compressed(f'../output/{survey}/cov_WL_GO_2D.npz', cov_GO_WL_2D)
+np.savez_compressed(f'../output/{survey}/cov_GC_GO_2D.npz', cov_GO_GC_2D)
 
 print('done')
