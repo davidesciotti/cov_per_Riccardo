@@ -33,18 +33,18 @@ row_col_major = 'row-major'
 probe_ordering = [['L', 'L'], [GL_or_LG[0], GL_or_LG[1]], ['G', 'G']]
 block_index = 'ell'
 n_probes = 2
-survey = 'Euclid_v2'
+survey = 'SKA_TATT'
 # ! end settings
 
 
-if survey == 'SKA' or survey == 'SKA_withbeta':
+if survey == 'SKA' or survey == 'SKA_withbeta' or 'SKA_TATT':
     fsky = 0.7
     n_gal = 8.7
-elif survey == 'Euclid' or survey == 'Euclid_v2':
+elif survey == 'Euclid':
     fsky = survey_area_ISTF / deg2_in_sphere
     n_gal = 30
 else:
-    raise ValueError('survey must be either "SKA" or "SKA_withbeta" or "Euclid" or "Euclid_v2"')
+    raise ValueError('survey must be either "SKA" or "SKA_withbeta" or "Euclid" or "SKA_TATT"')
 
 
 zpairs_auto, zpairs_cross, zpairs_3x2pt = mm.get_zpairs(zbins)
@@ -56,7 +56,7 @@ cl_LL_3d = np.load(f'{project_path}/data/{survey}/CLL.npy')
 cl_LG_3d = np.load(f'{project_path}/data/{survey}/CLG.npy')
 cl_GG_3d = np.load(f'{project_path}/data/{survey}/CGG.npy')
 
-if survey != 'Euclid_v2':
+if survey != 'SKA_TATT':
     cl_LL_3d = cl_LL_3d.transpose(2, 0, 1)
     cl_GL_3d = cl_LG_3d.transpose(2, 0, 1)
     cl_GG_3d = cl_GG_3d.transpose(2, 0, 1)
