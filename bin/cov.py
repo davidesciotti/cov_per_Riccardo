@@ -33,18 +33,18 @@ row_col_major = 'row-major'
 probe_ordering = [['L', 'L'], [GL_or_LG[0], GL_or_LG[1]], ['G', 'G']]
 block_index = 'ell'
 n_probes = 2
-survey = 'Euclid_eNLA'
+survey = 'SKA_eNLA'
 # ! end settings
 
 
-if survey == 'SKA' or survey == 'SKA_withbeta' or 'SKA_TATT':
+if survey.startswith('SKA'):
     fsky = 0.7
     n_gal = 8.7
-elif survey == 'Euclid' or 'Euclid_eNLA':
+elif survey.startswith('Euclid'):
     fsky = survey_area_ISTF / deg2_in_sphere
     n_gal = 30
 else:
-    raise ValueError('survey must be either "SKA" or "SKA_withbeta" or "Euclid" or "SKA_TATT"')
+    raise ValueError('survey name must start with "SKA" or "Euclid"')
 
 zpairs_auto, zpairs_cross, zpairs_3x2pt = mm.get_zpairs(zbins)
 
