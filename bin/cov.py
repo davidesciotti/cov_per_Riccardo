@@ -25,7 +25,7 @@ deg2_in_sphere = 41252.96  # deg^2 in a spere
 
 zbins = 10
 nbl = 32
-sigma_eps = 0.3
+sigma_eps = 0.30
 EP_or_ED = 'EP'
 GL_or_LG = 'GL'
 triu_tril = 'triu'
@@ -33,19 +33,18 @@ row_col_major = 'row-major'
 probe_ordering = [['L', 'L'], [GL_or_LG[0], GL_or_LG[1]], ['G', 'G']]
 block_index = 'ell'
 n_probes = 2
-survey = 'SKA_TATT'
+survey = 'Euclid_eNLA'
 # ! end settings
 
 
 if survey == 'SKA' or survey == 'SKA_withbeta' or 'SKA_TATT':
     fsky = 0.7
     n_gal = 8.7
-elif survey == 'Euclid':
+elif survey == 'Euclid' or 'Euclid_eNLA':
     fsky = survey_area_ISTF / deg2_in_sphere
     n_gal = 30
 else:
     raise ValueError('survey must be either "SKA" or "SKA_withbeta" or "Euclid" or "SKA_TATT"')
-
 
 zpairs_auto, zpairs_cross, zpairs_3x2pt = mm.get_zpairs(zbins)
 
@@ -54,17 +53,18 @@ ind_auto = ind[:zpairs_auto, :]
 
 cl_LL_3d = np.load(f'{project_path}/data/{survey}/CLL.npy')
 cl_LG_3d = np.load(f'{project_path}/data/{survey}/CLG.npy')
+cl_GL_3d = np.load(f'{project_path}/data/{survey}/CGL.npy')
 cl_GG_3d = np.load(f'{project_path}/data/{survey}/CGG.npy')
+print(cl_LL_3d.shape, cl_LG_3d.shape, cl_GG_3d.shape)
 
 if survey != 'SKA_TATT':
+    # in these 2 cases the cls are already in the correct shape
     cl_LL_3d = cl_LL_3d.transpose(2, 0, 1)
-    cl_GL_3d = cl_LG_3d.transpose(2, 0, 1)
+    cl_LG_3d = cl_LG_3d.transpose(2, 0, 1)
+    cl_GL_3d = cl_GL_3d.transpose(2, 0, 1)
     cl_GG_3d = cl_GG_3d.transpose(2, 0, 1)
 
-cl_GL_3d = cl_LG_3d.transpose(0, 2, 1)
-
-assert cl_GL_3d.shape == cl_LG_3d.shape == cl_LL_3d.shape == cl_GG_3d.shape
-assert cl_LL_3d.shape == (nbl, zbins, zbins)
+assert cl_GL_3d.shape == cl_LG_3d.shape == cl_LL_3d.shape == cl_GG_3d.shape == (nbl, zbins, zbins)
 
 ell_values = np.load(f'{project_path}/data/{survey}/ell.npy')
 delta_ell = np.load(f'{project_path}/data/{survey}/delta_ell.npy')
