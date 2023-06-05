@@ -33,7 +33,7 @@ row_col_major = 'row-major'
 probe_ordering = [['L', 'L'], [GL_or_LG[0], GL_or_LG[1]], ['G', 'G']]
 block_index = 'ell'
 n_probes = 2
-survey = 'SKA_eNLA'
+survey = 'Euclid'
 # ! end settings
 
 
@@ -55,7 +55,6 @@ cl_LL_3d = np.load(f'{project_path}/data/{survey}/CLL.npy')
 cl_LG_3d = np.load(f'{project_path}/data/{survey}/CLG.npy')
 cl_GL_3d = np.load(f'{project_path}/data/{survey}/CGL.npy')
 cl_GG_3d = np.load(f'{project_path}/data/{survey}/CGG.npy')
-print(cl_LL_3d.shape, cl_LG_3d.shape, cl_GG_3d.shape)
 
 if survey != 'SKA_TATT':
     # in these 2 cases the cls are already in the correct shape
@@ -103,6 +102,7 @@ cov_GO_GC_4D = mm.cov_6D_to_4D(cov_GO_GC_6D, nbl, zpairs_auto, ind_auto)
 cov_GO_WL_2D = mm.cov_4D_to_2D(cov_GO_WL_4D, block_index=block_index)
 cov_GO_GC_2D = mm.cov_4D_to_2D(cov_GO_GC_4D, block_index=block_index)
 cov_3x2pt_GO_2D = mm.cov_4D_to_2D(cov_3x2pt_GO_4D, block_index=block_index)
+
 
 mm.matshow(cov_GO_WL_2D, log=True, abs_val=False, title='cov_WL')
 mm.matshow(cov_GO_GC_2D, log=True, abs_val=False, title='cov_GC')
